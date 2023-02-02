@@ -169,7 +169,12 @@ const delivery_dkim_push_key = ( delivery, key_datas ) => {
  * @retuns {string} From domain
  */
 const get_from_domain = ( delivery ) => {
-    return delivery.envelope.from.substr (
+    /**
+     * Email from
+     * @type {string}
+     */
+    let from = delivery.envelope.from;
+    return from.substr (
         from.lastIndexOf ( '@' ) + 1
     ).toLowerCase ();
 };

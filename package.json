@@ -10,6 +10,9 @@
         "eslint": "^8.10.0",
         "eslint-config-nodemailer": "^1.2.0",
         "eslint-config-prettier": "^8.4.0",
+        "mocha": "^10.0.0",
+        "nyc": "^15.1.0",
+        "rewire": "^6.0.0",
         "sinon": "^13.0.1"
     },
     "directories": {
