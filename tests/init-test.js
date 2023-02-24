@@ -8,7 +8,7 @@ const expect = chai.expect;
 
 const METHODS = [
     'header_replace_xClientId',
-    'create_error',
+    'create_error_missing_dkim_key',
     'add_optional_headers',
     'header_addnot_xCampaignId',
     'header_addnot_feedbackId',
@@ -47,13 +47,13 @@ describe ( 'Test module init', () => {
         
         var load_dkim_keys_stub = sinon.stub ().returns ( true );
         var get_dkim_key_stub = sinon.stub ().returns ( 'random-key' );
-        var create_error_stub = sinon.stub ();
+        var create_error_missing_dkim_key_stub = sinon.stub ();
         var get_from_domain_stub = sinon.stub ().returns ( 'random-from-domain' );
         var delivery_dkim_push_key_stub = sinon.stub ();
         
         MultiDkim.__set__ ( 'load_dkim_keys', load_dkim_keys_stub );
         MultiDkim.__set__ ( 'get_dkim_key', get_dkim_key_stub );
-        MultiDkim.__set__ ( 'create_error', create_error_stub );
+        MultiDkim.__set__ ( 'create_error_missing_dkim_key', create_error_missing_dkim_key_stub );
         MultiDkim.__set__ ( 'get_from_domain', get_from_domain_stub );
         MultiDkim.__set__ ( 'delivery_dkim_push_key', delivery_dkim_push_key_stub );
 
@@ -71,7 +71,7 @@ describe ( 'Test module init', () => {
             app_mock,
             'random-delivery'
         ) ).to.be.true;
-        expect ( create_error_stub.callCount ).to.be.equal ( 0 );
+        expect ( create_error_missing_dkim_key_stub.callCount ).to.be.equal ( 0 );
         expect ( get_from_domain_stub.calledOnceWith (
             'random-delivery'
         ) ).to.be.true;
@@ -92,13 +92,13 @@ describe ( 'Test module init', () => {
     it ( 'Key not found', () => {
         var load_dkim_keys_stub = sinon.stub ().returns ( true );
         var get_dkim_key_stub = sinon.stub ().returns ( false );
-        var create_error_stub = sinon.stub ().returns ( 'random-error' );
+        var create_error_missing_dkim_key_stub = sinon.stub ().returns ( 'random-error' );
         var get_from_domain_stub = sinon.stub ();
         var delivery_dkim_push_key_stub = sinon.stub ();
         
         MultiDkim.__set__ ( 'load_dkim_keys', load_dkim_keys_stub );
         MultiDkim.__set__ ( 'get_dkim_key', get_dkim_key_stub );
-        MultiDkim.__set__ ( 'create_error', create_error_stub );
+        MultiDkim.__set__ ( 'create_error_missing_dkim_key', create_error_missing_dkim_key_stub );
         MultiDkim.__set__ ( 'get_from_domain', get_from_domain_stub );
         MultiDkim.__set__ ( 'delivery_dkim_push_key', delivery_dkim_push_key_stub );
 
@@ -116,8 +116,9 @@ describe ( 'Test module init', () => {
             app_mock,
             'random-delivery'
         ) ).to.be.true;
-        expect ( create_error_stub.calledOnceWith (
-            'Unable to get dkim key'
+        expect ( create_error_missing_dkim_key_stub.calledOnceWith (
+            app_mock,
+            'random-delivery'
         ) ).to.be.true;
         expect ( get_from_domain_stub.callCount ).to.be.equal ( 0 );
         expect ( delivery_dkim_push_key_stub.callCount ).to.be.equal ( 0 );
@@ -132,13 +133,13 @@ describe ( 'Test module init', () => {
     it ( 'Unable to load dkim keys', () => {
         var load_dkim_keys_stub = sinon.stub ().returns ( false );
         var get_dkim_key_stub = sinon.stub ();
-        var create_error_stub = sinon.stub ();
+        var create_error_missing_dkim_key_stub = sinon.stub ();
         var get_from_domain_stub = sinon.stub ();
         var delivery_dkim_push_key_stub = sinon.stub ();
         
         MultiDkim.__set__ ( 'load_dkim_keys', load_dkim_keys_stub );
         MultiDkim.__set__ ( 'get_dkim_key', get_dkim_key_stub );
-        MultiDkim.__set__ ( 'create_error', create_error_stub );
+        MultiDkim.__set__ ( 'create_error_missing_dkim_key', create_error_missing_dkim_key_stub );
         MultiDkim.__set__ ( 'get_from_domain', get_from_domain_stub );
         MultiDkim.__set__ ( 'delivery_dkim_push_key', delivery_dkim_push_key_stub );
 
@@ -153,7 +154,7 @@ describe ( 'Test module init', () => {
             app_mock
         ) ).to.be.true;
         expect ( get_dkim_key_stub.callCount ).to.be.equal ( 0 );
-        expect ( create_error_stub.callCount ).to.be.equal ( 0 );
+        expect ( create_error_missing_dkim_key_stub.callCount ).to.be.equal ( 0 );
         expect ( get_from_domain_stub.callCount ).to.be.equal ( 0 );
         expect ( delivery_dkim_push_key_stub.callCount ).to.be.equal ( 0 );
 

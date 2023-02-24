@@ -180,6 +180,38 @@ const get_from_domain = ( delivery ) => {
 };
 
 
+/**
+ * Create error message based on key exists
+ *
+ * @param {PluginInstance} app Zone-mta instance
+ * @param {dict} delivery Email datas
+ *
+ * @returns {Error} Error
+ */
+const create_error_missing_dkim_key = ( app, delivery ) => {
+    /**
+     * Error message
+     * @type {string}
+     */
+    let msg = null;
+    
+    if ( delivery.headers.hasHeader ( app.config.key_header ) === false ) {
+        msg = 'Unable to get dkim key, missing header key'
+    } else {
+        /**
+         * Header key value to lookup dkim key
+         * @type {string}
+         */
+        let key_value = delivery.headers.getFirst ( app.config.key_header );
+        msg = `Unable to get dkim key for ${key_value}`;
+    }
+    
+    return create_error (
+        msg
+    );
+};
+
+
 module.exports.title = 'Multiple DKIM signer';
 module.exports.init = ( app, done ) => {
     /**
@@ -191,7 +223,7 @@ module.exports.init = ( app, done ) => {
         return done ();
     }
     
-    app.addHook ( 'sender:connection', (delivery, options, next) => {
+    app.addHook ( 'sender:connect', (delivery, options, next) => {
         /**
          * DKIM key to use
          * @type {bool|string}
@@ -203,8 +235,9 @@ module.exports.init = ( app, done ) => {
         
         if ( key === false ) {
             return next (
-                create_error (
-                    'Unable to get dkim key'
+                create_error_missing_dkim_key (
+                    app,
+                    delivery
                 )
             );
         }
