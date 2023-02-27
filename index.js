@@ -106,12 +106,12 @@ const load_dkim_keys = ( app ) => {
  * Get DKIM key to use
  *
  * @param {PluginInstance} app Zone-mta instance
- * @param {dict} delivery Email datas
+ * @param {dict} email_datas Email datas
  *
  * @returns {bool|string} Key if found & if dkim loaded. False otherwise
  */
-const get_dkim_key = ( app, delivery ) => {
-    if ( delivery.headers.hasHeader ( app.config.key_header ) === false ) {
+const get_dkim_key = ( app, email_datas ) => {
+    if ( email_datas.headers.hasHeader ( app.config.key_header ) === false ) {
         return false;
     }
     
@@ -119,31 +119,13 @@ const get_dkim_key = ( app, delivery ) => {
      * Current key dkim to use
      * @type {string}
      */
-    let key = delivery.headers.getFirst ( app.config.key_header );
+    let key = email_datas.headers.getFirst ( app.config.key_header );
     
     if ( ( key in PRIV_KEYS ) === false ) {
         return false;
     }
     
     return key;
-};
-
-
-/**
- * Create an error with message & response code
- *
- * @param {string} msg Error message
- *
- * @returns {Error} Error
- */
-const create_error = ( msg ) => {
-    /**
-     * Contruct Error object
-     * @type {Error}
-     */
-    let err = new Error ( msg );
-    err.responseCode = 550;
-    return err;
 };
 
 
@@ -179,35 +161,15 @@ const get_from_domain = ( delivery ) => {
     ).toLowerCase ();
 };
 
-
 /**
- * Create error message based on key exists
+ * Create header : missing dkim
  *
- * @param {PluginInstance} app Zone-mta instance
- * @param {dict} delivery Email datas
- *
- * @returns {Error} Error
+ * @param {dict} envelope Email datas
  */
-const create_error_missing_dkim_key = ( app, delivery ) => {
-    /**
-     * Error message
-     * @type {string}
-     */
-    let msg = null;
-    
-    if ( delivery.headers.hasHeader ( app.config.key_header ) === false ) {
-        msg = 'Unable to get dkim key, missing header key'
-    } else {
-        /**
-         * Header key value to lookup dkim key
-         * @type {string}
-         */
-        let key_value = delivery.headers.getFirst ( app.config.key_header );
-        msg = `Unable to get dkim key for ${key_value}`;
-    }
-    
-    return create_error (
-        msg
+const create_header_missing_dkim = ( envelope ) => {
+    envelope.headers.add (
+        'x-missing-dkim',
+        'Key not found'
     );
 };
 
@@ -223,6 +185,41 @@ module.exports.init = ( app, done ) => {
         return done ();
     }
     
+    
+    /**
+     * Hook : message:headers, part : receiver. Check if the email can be sign
+     *
+     * @param {dict} envelope Email datas
+     * @param {dict} messageInfo Email infos
+     * @param {function} next Callback
+     */
+    app.addHook ( 'message:headers', ( envelope, messageInfo, next ) => {
+        /**
+         * DKIM key to use
+         * @type {bool|string}
+         */
+        let key = get_dkim_key (
+            app,
+            envelope
+        );
+        
+        if ( key === false ) {
+            create_header_missing_dkim (
+                envelope
+            );
+        }
+        
+        next ();
+    } );
+    
+    
+    /**
+     * Hook : sender:connect, part : sender. Sign email
+     *
+     * @param {dict} delivery Email datas
+     * @param {dict} options Sender datas
+     * @param {function} next Callback
+     */
     app.addHook ( 'sender:connect', (delivery, options, next) => {
         /**
          * DKIM key to use
@@ -233,26 +230,19 @@ module.exports.init = ( app, done ) => {
             delivery
         );
         
-        if ( key === false ) {
-            return next (
-                create_error_missing_dkim_key (
-                    app,
-                    delivery
-                )
+        if ( key !== false ) {
+            // Store DKIM key datas
+            delivery_dkim_push_key (
+                delivery,
+                {
+                    domainName: get_from_domain (
+                        delivery
+                    ),
+                    keySelector: app.config.selector,
+                    privateKey: PRIV_KEYS [ key ]
+                }
             );
         }
-        
-        // Store DKIM key datas
-        delivery_dkim_push_key (
-            delivery,
-            {
-                domainName: get_from_domain (
-                    delivery
-                ),
-                keySelector: app.config.selector,
-                privateKey: PRIV_KEYS [ key ]
-            }
-        );
         
         next ();
     } );
