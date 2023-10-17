@@ -5,13 +5,6 @@ enabled = [ "receiver", "sender" ]
 # Header who contain key name
 key_header = "random-header"
 
-# Keys list, used to valid keys file name without extention .pem
-keys = [
-  "random-domain-1",
-  "random-domain-2",
-  "random-domain-3"
-]
-
 # Keys directory
 keys_dir = "/path/to/zone-mta/keys"
 

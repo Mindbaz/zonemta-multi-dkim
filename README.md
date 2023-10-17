@@ -6,13 +6,33 @@ Load & use a dkim key file based on a header value, example : with header `X-ran
 
 Add this as a dependency for your ZoneMTA app
 
-```
+```shell
 npm install @mindbaz/zonemta-multi-dkim --save
 ```
+
+## Configure
+
+The module uses `wild-config`, so there are two `toml` configuration files to manage
+
+### Plugin conf
 
 Add a configuration entry in the "plugins" section of your ZoneMTA app
 
 Example [here](./config.example.toml).
+
+### Wild-config
+
+ZoneMTA uses the following file for wild-config : `/path/to/zone-mta/config/zonemta.toml`
+
+```toml
+# Keys list, used to valid keys file name without extention .pem
+[multi_dkim]
+keys = [
+  "random-domain-1",
+  "random-domain-2",
+  "random-domain-3"
+]
+```
 
 ## License
 

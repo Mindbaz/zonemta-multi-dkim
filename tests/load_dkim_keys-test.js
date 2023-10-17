@@ -21,17 +21,20 @@ describe ( 'Load DKIM key', () => {
     
     
     it ( 'Returns true', () => {
-        app_mock.config [ 'keys' ] = [
-            'random-keys-1',
-            'random-keys-2',
-            'random-keys-3'
-        ];
-
         var load_dkim_key_stub = sinon.stub ().returns ( true );
         MultiDkim.__set__ ( 'load_dkim_key', load_dkim_key_stub );
 
         let ret = load_dkim_keys (
-            app_mock
+            app_mock,
+            {
+                'multi_dkim': {
+                    'keys': [
+                        'random-keys-1',
+                        'random-keys-2',
+                        'random-keys-3'
+                    ]
+                }
+            }
         );
 
         expect ( ret ).to.be.true;
@@ -46,17 +49,20 @@ describe ( 'Load DKIM key', () => {
     
     
     it ( 'Returns false', () => {
-        app_mock.config [ 'keys' ] = [
-            'random-keys-1',
-            'random-keys-2',
-            'random-keys-3'
-        ];
-
         var load_dkim_key_stub = sinon.stub ().returns ( false );
         MultiDkim.__set__ ( 'load_dkim_key', load_dkim_key_stub );
 
         let ret = load_dkim_keys (
-            app_mock
+            app_mock,
+            {
+                'multi_dkim': {
+                    'keys': [
+                        'random-keys-1',
+                        'random-keys-2',
+                        'random-keys-3'
+                    ]
+                }
+            }
         );
 
         expect ( ret ).to.be.false;

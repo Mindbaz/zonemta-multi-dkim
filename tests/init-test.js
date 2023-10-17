@@ -65,9 +65,10 @@ describe ( 'Test module init', () => {
         
         // Pre-hook
         
-        expect ( load_dkim_keys_stub.calledOnceWith (
-            app_mock
-        ) ).to.be.true;
+        expect ( load_dkim_keys_stub.callCount ).to.be.equal ( 1 );
+        const load_dkim_keys_args = load_dkim_keys_stub.getCall ( 0 ).args;
+        expect ( load_dkim_keys_args [ 0 ] ).to.be.equal ( app_mock );
+        expect ( typeof ( load_dkim_keys_args [ 1 ] ) ).to.be.equal ( 'object' );
         
         // Hook : message:headers
         

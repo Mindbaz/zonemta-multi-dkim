@@ -44,6 +44,12 @@ describe ( 'Get DKIM key to use', () => {
         const get_first_stub = sinon
               .stub ( delivery_mock.headers, 'getFirst' )
               .returns ( 'random-key' );
+        
+        const load_dkim_key_stub = sinon.stub ();
+        MultiDkim.__set__ ( 'load_dkim_key', load_dkim_key_stub );
+        
+        const _get_dkim_key_stub = sinon.stub ();
+        MultiDkim.__set__ ( '_get_dkim_key', _get_dkim_key_stub );
 
         let ret = get_dkim_key (
             app_mock,
@@ -58,13 +64,15 @@ describe ( 'Get DKIM key to use', () => {
         expect ( get_first_stub.calledOnceWith (
             'random-header'
         ) ).to.be.true;
+        expect ( load_dkim_key_stub.callCount ).to.be.equal ( 0 );
+        expect ( _get_dkim_key_stub.callCount ).to.be.equal ( 0 );
         
         get_first_stub.restore ();
         has_header_stub.restore ();
     } );
     
     
-    it ( 'Key not loaded', () => {
+    it ( 'Key not already loaded, but can load it', () => {
         app_mock.config [ 'key_header' ] = 'random-header';
         PRIV_KEYS [ 'another-key' ] = 'random-key-datas';
         
@@ -75,7 +83,54 @@ describe ( 'Get DKIM key to use', () => {
         const get_first_stub = sinon
               .stub ( delivery_mock.headers, 'getFirst' )
               .returns ( 'random-key' );
+        
+        const load_dkim_key_stub = sinon.stub ().returns ( true );
+        MultiDkim.__set__ ( 'load_dkim_key', load_dkim_key_stub );
+        
+        const _get_dkim_key_stub = sinon.stub ().returns ( 'random-returns' );
+        MultiDkim.__set__ ( '_get_dkim_key', _get_dkim_key_stub );
+        
+        let ret = get_dkim_key (
+            app_mock,
+            delivery_mock
+        );
+        
+        expect ( ret ).to.be.equal ( 'random-returns' );
 
+        expect ( has_header_stub.calledOnceWith (
+            'random-header'
+        ) ).to.be.true;
+        expect ( get_first_stub.calledOnceWith (
+            'random-header'
+        ) ).to.be.true;
+        expect ( load_dkim_key_stub.calledOnceWith (
+            app_mock,
+            'random-key'
+        ) ).to.be.true;
+
+        get_first_stub.restore ();
+        has_header_stub.restore ();
+    } );
+    
+    
+    it ( 'Key not already loaded & unable to load it', () => {
+        app_mock.config [ 'key_header' ] = 'random-header';
+        PRIV_KEYS [ 'another-key' ] = 'random-key-datas';
+        
+        const has_header_stub = sinon
+              .stub ( delivery_mock.headers, 'hasHeader' )
+              .returns ( true );
+        
+        const get_first_stub = sinon
+              .stub ( delivery_mock.headers, 'getFirst' )
+              .returns ( 'random-key' );
+        
+        const load_dkim_key_stub = sinon.stub ().returns ( false );
+        MultiDkim.__set__ ( 'load_dkim_key', load_dkim_key_stub );
+        
+        const _get_dkim_key_stub = sinon.stub ();
+        MultiDkim.__set__ ( '_get_dkim_key', _get_dkim_key_stub );
+        
         let ret = get_dkim_key (
             app_mock,
             delivery_mock
@@ -89,6 +144,11 @@ describe ( 'Get DKIM key to use', () => {
         expect ( get_first_stub.calledOnceWith (
             'random-header'
         ) ).to.be.true;
+        expect ( load_dkim_key_stub.calledOnceWith (
+            app_mock,
+            'random-key'
+        ) ).to.be.true;
+        expect ( _get_dkim_key_stub.callCount ).to.be.equal ( 0 );
 
         get_first_stub.restore ();
         has_header_stub.restore ();
@@ -105,6 +165,12 @@ describe ( 'Get DKIM key to use', () => {
         const get_first_stub = sinon
               .stub ( delivery_mock.headers, 'getFirst' );
         
+        const load_dkim_key_stub = sinon.stub ();
+        MultiDkim.__set__ ( 'load_dkim_key', load_dkim_key_stub );
+        
+        const _get_dkim_key_stub = sinon.stub ();
+        MultiDkim.__set__ ( '_get_dkim_key', _get_dkim_key_stub );
+        
         let ret = get_dkim_key (
             app_mock,
             delivery_mock
@@ -116,6 +182,8 @@ describe ( 'Get DKIM key to use', () => {
             'random-header'
         ) ).to.be.true;
         expect ( get_first_stub.callCount ).to.be.equal ( 0 );
+        expect ( load_dkim_key_stub.callCount ).to.be.equal ( 0 );
+        expect ( _get_dkim_key_stub.callCount ).to.be.equal ( 0 );
 
         get_first_stub.restore ();
         has_header_stub.restore ();

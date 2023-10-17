@@ -27,7 +27,7 @@
 
 const fs = require ( 'fs' );
 const path = require ( 'path' );
-
+const config = require ( 'wild-config' );
 
 /**
  * All dkim keys
@@ -83,11 +83,12 @@ const load_dkim_key = ( app, key ) => {
  * Load all DKIM keys
  *
  * @param {PluginInstance} app Zone-mta instance
+ * @param {object} config Wild config
  *
  * @returns {bool} True if all keys are loaded. False otherwise
  */
-const load_dkim_keys = ( app ) => {
-    for ( let key of app.config.keys ) {
+const load_dkim_keys = ( app, config ) => {
+    for ( let key of config.multi_dkim.keys ) {
         let is_dkim_loaded = load_dkim_key (
             app,
             key
@@ -99,6 +100,22 @@ const load_dkim_keys = ( app ) => {
     }
     
     return true;
+};
+
+
+/**
+ * Alias to get_dkim_key, used for recursive call
+ *
+ * @param {PluginInstance} app Zone-mta instance
+ * @param {dict} email_datas Email datas
+ *
+ * @returns {bool|string} Key if found & if dkim loaded. False otherwise
+ */
+const _get_dkim_key = ( app, email_datas ) => {
+    return get_dkim_key (
+        app,
+        email_datas
+    );
 };
 
 
@@ -122,6 +139,16 @@ const get_dkim_key = ( app, email_datas ) => {
     let key = email_datas.headers.getFirst ( app.config.key_header );
     
     if ( ( key in PRIV_KEYS ) === false ) {
+        let load = load_dkim_key (
+            app,
+            key
+        );
+        if ( load == true ) {
+            return _get_dkim_key (
+                app,
+                email_datas
+            );
+        }
         return false;
     }
     
@@ -180,7 +207,10 @@ module.exports.init = ( app, done ) => {
      * Load all dkim keys
      * @type {bool}
      */
-    let is_dkims_loaded = load_dkim_keys ( app );
+    let is_dkims_loaded = load_dkim_keys (
+        app,
+        config
+    );
     if ( is_dkims_loaded === false ) {
         return done ();
     }
