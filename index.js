@@ -1,7 +1,7 @@
 'use strict';
 
 /*
-  Copyright (C) 2023 Mindbaz
+  Copyright (C) 2024 Mindbaz
   
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -179,10 +179,10 @@ const delivery_dkim_push_key = ( delivery, key_datas ) => {
  */
 const get_from_domain = ( delivery ) => {
     /**
-     * Email from
+     * Email from. RFC5322
      * @type {string}
      */
-    let from = delivery.envelope.from;
+    let from = delivery.headers.getFirst ( 'from' );
     return from.substr (
         from.lastIndexOf ( '@' ) + 1
     ).toLowerCase ();

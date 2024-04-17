@@ -12,7 +12,9 @@ describe ( 'Push dkim key datas', () => {
     
     beforeEach ( ()  => {
         delivery_mock = {
-            envelope: {}
+            headers : {
+                getFirst () {}
+            }
         };
     } );
     
@@ -21,12 +23,15 @@ describe ( 'Push dkim key datas', () => {
     
     
     it ( 'Get from domain', () => {
-        delivery_mock.envelope.from = 'example@RANDOM-DOMAIN';
-
+        const get_first_stub = sinon
+              .stub ( delivery_mock.headers, 'getFirst' )
+              .returns ( 'random-name@EXAMPLE.ORG' );
+        
         let ret = get_from_domain (
             delivery_mock
         );
-
-        expect ( ret ).to.be.equal ( 'random-domain' );
+        
+        expect ( ret ).to.be.equal ( 'example.org' );
+        expect ( get_first_stub.callCount ).to.equal ( 1 );
     } );
 } );
