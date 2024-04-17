@@ -1,6 +1,6 @@
 {
     "name": "@mindbaz/zonemta-multi-dkim",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Use multiple dkim keys",
     "main": "index.js",
     "author": "Valentin Henon <vhenon@mindbaz.com>",

@@ -183,10 +183,13 @@ const get_from_domain = ( delivery ) => {
      * @type {string}
      */
     let from = delivery.headers.getFirst ( 'from' );
-    return from.substr (
+    from = from.substr (
         from.lastIndexOf ( '@' ) + 1
-    ).toLowerCase ();
+    );
+    from = from.split ( '>' ) [ 0 ];
+    return from.toLowerCase ();
 };
+
 
 /**
  * Create header : missing dkim

@@ -34,4 +34,18 @@ describe ( 'Push dkim key datas', () => {
         expect ( ret ).to.be.equal ( 'example.org' );
         expect ( get_first_stub.callCount ).to.equal ( 1 );
     } );
+    
+    
+    it ( 'Get domain from email with name', () => {
+        const get_first_stub = sinon
+              .stub ( delivery_mock.headers, 'getFirst' )
+              .returns ( 'Random name <random-name@EXAMPLE.ORG>' );
+        
+        let ret = get_from_domain (
+            delivery_mock
+        );
+        
+        expect ( ret ).to.be.equal ( 'example.org' );
+        expect ( get_first_stub.callCount ).to.equal ( 1 );
+    } );
 } );
