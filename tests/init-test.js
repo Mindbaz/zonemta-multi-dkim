@@ -79,7 +79,7 @@ describe ( 'Test module init', () => {
         ] );
         expect ( create_header_missing_dkim_stub.callCount ).to.be.equal ( 0 );
         
-        // Hook : sender:connect
+        // Hook : sender:connection
         
         expect ( get_dkim_key_stub.getCalls () [ 1 ].args ).to.be.eql ( [
             app_mock,
@@ -138,7 +138,7 @@ describe ( 'Test module init', () => {
             'random-delivery'
         ) ).to.be.true;
         
-        // Hook : sender:connect
+        // Hook : sender:connection
         
         expect ( get_dkim_key_stub.getCalls () [ 1 ].args ).to.be.eql ( [
             app_mock,

@@ -247,13 +247,13 @@ module.exports.init = ( app, done ) => {
     
     
     /**
-     * Hook : sender:connect, part : sender. Sign email
+     * Hook : sender:connection (called for every message : even for cached connection), part : sender. Sign email
      *
      * @param {dict} delivery Email datas
      * @param {dict} options Sender datas
      * @param {function} next Callback
      */
-    app.addHook ( 'sender:connect', (delivery, options, next) => {
+    app.addHook ( 'sender:connection', (delivery, options, next) => {
         /**
          * DKIM key to use
          * @type {bool|string}

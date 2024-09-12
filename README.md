@@ -4,7 +4,7 @@ Load & use a dkim key file based on a header value, example : with header `X-ran
 
 ## Setup
 
-Add this as a dependency for your ZoneMTA app
+Add this as a dependency for your ZoneMTA app (>= v2.3.0)
 
 ```shell
 npm install @mindbaz/zonemta-multi-dkim --save
